@@ -15,20 +15,29 @@ const openai = new OpenAI({
 });
 
 function buildPrompt(pr) {
-  return `
-Analyze the following Cypress test code changes and generate:
-- 3 smoke tests
-- 3 negative tests
-- 3 edge-case tests
-
-Return JSON array only.
-
-PR Title: ${pr.title}
-
-Changed Files:
-${pr.files.map((f) => `File: ${f.filename}\nPatch:\n${f.patch}`).join("\n")}
-`;
-}
+    return `
+  You are an expert QA Automation Engineer. Analyze ONLY the Cypress test changes in the PR diff below.
+  
+  Generate structured test cases in JSON format like:
+  
+  {
+    "smoke": ["test1", "test2", "test3"],
+    "negative": ["test1", "test2", "test3"],
+    "edge": ["test1", "test2", "test3"]
+  }
+  
+  Rules:
+  - Each category must contain EXACTLY 3 tests.
+  - Tests must be relevant to the modified Cypress file(s).
+  - Output ONLY the JSON. No explanations.
+  
+  PR Title: ${pr.title}
+  
+  Changed Files:
+  ${pr.files.map((f) => `File: ${f.filename}\nPatch:\n${f.patch}`).join("\n")}
+  `;
+  }
+  
 
 async function analyze() {
   if (!fs.existsSync(DATA_FILE)) {
@@ -83,11 +92,24 @@ async function analyze() {
       output.push({
         pr_number: pr.pr_number,
         title: pr.title,
-        suggestions: [
-          "Test that the homepage loads",
-          "Verify navigation menu renders",
-          "Check that important links are visible",
-        ],
+        suggestions: {
+            smoke: [
+              "Verify the page loads successfully",
+              "Ensure primary UI elements render correctly",
+              "Navigation bar should display on page load"
+            ],
+            negative: [
+              "Should display error for invalid inputs",
+              "Should prevent submitting empty fields",
+              "Should block unauthorized user actions"
+            ],
+            edge: [
+              "Should handle long text inputs without breaking layout",
+              "Should handle slow network responses gracefully",
+              "Should handle unexpected navigation redirects"
+            ]
+          },
+          
         source: "fallback",
       });
     }
