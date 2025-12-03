@@ -1,9 +1,9 @@
 describe('CSUF Homepage Smoke Test', () => {
-    it('Visits CSUF homepage', () => {
+    it('Visit CSUF homepage', () => {
       cy.visit('https://www.fullerton.edu/');
     });
 
-    it("checks that the search bar is visible on homepage", () => {
+    it("Search bar functionality", () => {
         cy.visit("https://www.fullerton.edu");
         cy.get("input[type='search'], #search, .search").should("exist");
       });
