@@ -1,5 +1,5 @@
 describe('CSUF Homepage Smoke Test', () => {
-    it('Visits CSUF homepage', () => {
+    it('Visit CSUF homepage', () => {
       cy.visit('https://www.fullerton.edu/');
     });
 
@@ -9,6 +9,11 @@ describe('CSUF Homepage Smoke Test', () => {
       });
 
       it("CSUF holder is visible", () => {
+        cy.visit("https://csuf.edu");
+        cy.contains("California State University").should("be.visible");
+      });
+    
+      it("Check the heading", () => {
         cy.visit("https://csuf.edu");
         cy.contains("California State University").should("be.visible");
       });
