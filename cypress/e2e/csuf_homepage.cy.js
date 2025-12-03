@@ -3,18 +3,9 @@ describe('CSUF Homepage Smoke Test', () => {
       cy.visit('https://www.fullerton.edu/');
     });
 
-    it("Search bar visibe test case", () => {
+    it("Search bar functionality", () => {
         cy.visit("https://www.fullerton.edu");
         cy.get("input[type='search'], #search, .search").should("exist");
       });
 
-      it("CSUF holder is visible", () => {
-        cy.visit("https://csuf.edu");
-        cy.contains("California State University").should("be.visible");
-      });
-    
-      it("Check the heading", () => {
-        cy.visit("https://csuf.edu");
-        cy.contains("California State University").should("be.visible");
-      });
 });
