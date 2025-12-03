@@ -23,9 +23,9 @@ jobs:
     - name: Load GitHub Secrets into Environment
       run: |
         echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
-        echo "GITHUB_TOKEN=${{ secrets.PAT_TOKEN }}" >> $GITHUB_ENV
-        echo "GITHUB_OWNER=${{ secrets.REPO_OWNER }}" >> $GITHUB_ENV
-        echo "GITHUB_REPO=${{ secrets.REPO_NAME }}" >> $GITHUB_ENV
+        echo "PAT_TOKEN=${{ secrets.PAT_TOKEN }}" >> $GITHUB_ENV
+        echo "REPO_OWNER=${{ secrets.REPO_OWNER }}" >> $GITHUB_ENV
+        echo "REPO_NAME=${{ secrets.REPO_NAME }}" >> $GITHUB_ENV
 
     - name: Fetch PR Files
       run: npm run get-pr
@@ -33,46 +33,5 @@ jobs:
     - name: Analyze PR with OpenAI
       run: npm run analyze-pr
 
-      - name: Post PR Comment with Results
-      run: |
-        node << 'EOF'
-        const fs = require('fs');
-        const path = require('path');
-
-        const resultPath = path.join(process.cwd(), 'data', 'pr-ai-suggestions.json');
-        if (!fs.existsSync(resultPath)) {
-          console.error("❌ No AI suggestions file found.");
-          process.exit(1);
-        }
-
-        const suggestions = JSON.parse(fs.readFileSync(resultPath));
-        const pr = suggestions[0];
-
-        // Build comment
-        const body = `
-🧪 **AI TestGen Suggestions (Smoke + Negative + Edge Cases)**
-
-**PR #${pr.pr_number}: ${pr.title}**
-
-### ✔️ Generated Test Cases:
-\`\`\`json
-${JSON.stringify(pr.suggestions, null, 2)}
-\`\`\`
-        `;
-
-        // Post comment using Octokit
-        const { Octokit } = require("@octokit/rest");
-        const octokit = new Octokit({ auth: process.env.PAT_TOKEN });
-
-        octokit.issues.createComment({
-          owner: process.env.REPO_OWNER,
-          repo: process.env.REPO_NAME,
-          issue_number: pr.pr_number,
-          body
-        }).then(() => {
-          console.log("✔️ Comment posted to PR");
-        }).catch(err => {
-          console.error("❌ Failed to post comment:", err);
-          process.exit(1);
-        });
-        EOF
+    - name: Post PR Comment with Results
+      run: node scripts/post-comment.js
