@@ -8,7 +8,7 @@ describe('CSUF Homepage Smoke Test', () => {
         cy.get("input[type='search'], #search, .search").should("exist");
       });
 
-      it("should load the homepage", () => {
+      it("CSUF holder is visible", () => {
         cy.visit("https://csuf.edu");
         cy.contains("California State University").should("be.visible");
       });
