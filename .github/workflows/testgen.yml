@@ -23,9 +23,10 @@ jobs:
     - name: Load GitHub Secrets into Environment
       run: |
         echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
-        echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-        echo "GITHUB_OWNER=${{ secrets.GITHUB_OWNER }}" >> $GITHUB_ENV
-        echo "GITHUB_REPO=${{ secrets.GITHUB_REPO }}" >> $GITHUB_ENV
+        echo "GITHUB_TOKEN=${{ secrets.PAT_TOKEN }}" >> $GITHUB_ENV
+        echo "GITHUB_OWNER=${{ secrets.REPO_OWNER }}" >> $GITHUB_ENV
+        echo "GITHUB_REPO=${{ secrets.REPO_NAME }}" >> $GITHUB_ENV
+    
 
     - name: Fetch PR Files
       run: npm run get-pr
