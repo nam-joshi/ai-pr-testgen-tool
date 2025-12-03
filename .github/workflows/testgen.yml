@@ -33,36 +33,46 @@ jobs:
     - name: Analyze PR with OpenAI
       run: npm run analyze-pr
 
-    - name: Post PR Comment with Results
+      - name: Post PR Comment with Results
       run: |
         node << 'EOF'
         const fs = require('fs');
         const path = require('path');
-        const { Octokit } = require('@octokit/rest');
 
-        const token = process.env.GITHUB_TOKEN;
-        const owner = process.env.GITHUB_OWNER;
-        const repo = process.env.GITHUB_REPO;
-        const prNumber = process.env.GITHUB_REF.split("/")[2];
+        const resultPath = path.join(process.cwd(), 'data', 'pr-ai-suggestions.json');
+        if (!fs.existsSync(resultPath)) {
+          console.error("❌ No AI suggestions file found.");
+          process.exit(1);
+        }
 
-        const data = JSON.parse(fs.readFileSync(path.join(process.cwd(), "data", "pr-ai-suggestions.json")));
+        const suggestions = JSON.parse(fs.readFileSync(resultPath));
+        const pr = suggestions[0];
 
-        const octokit = new Octokit({ auth: token });
+        // Build comment
+        const body = `
+🧪 **AI TestGen Suggestions (Smoke + Negative + Edge Cases)**
 
-        let body = "### 🤖 AI TestGen Suggestions\n\n";
+**PR #${pr.pr_number}: ${pr.title}**
 
-        data.forEach(item => {
-          body += `#### PR #${item.pr_number}: ${item.title}\n`;
-          body += "**Generated Test Cases:**\n";
-          body += "```\n";
-          body += JSON.stringify(item.suggestions, null, 2);
-          body += "\n```\n\n";
-        });
+### ✔️ Generated Test Cases:
+\`\`\`json
+${JSON.stringify(pr.suggestions, null, 2)}
+\`\`\`
+        `;
+
+        // Post comment using Octokit
+        const { Octokit } = require("@octokit/rest");
+        const octokit = new Octokit({ auth: process.env.PAT_TOKEN });
 
         octokit.issues.createComment({
-          owner,
-          repo,
-          issue_number: prNumber,
+          owner: process.env.REPO_OWNER,
+          repo: process.env.REPO_NAME,
+          issue_number: pr.pr_number,
           body
+        }).then(() => {
+          console.log("✔️ Comment posted to PR");
+        }).catch(err => {
+          console.error("❌ Failed to post comment:", err);
+          process.exit(1);
         });
         EOF
