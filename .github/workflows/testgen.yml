@@ -23,9 +23,9 @@ jobs:
     - name: Load GitHub Secrets into Environment
       run: |
         echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
-        echo "GITHUB_TOKEN=${{ secrets.PAT_TOKEN }}" >> $GITHUB_ENV
-        echo "GITHUB_OWNER=${{ secrets.REPO_OWNER }}" >> $GITHUB_ENV
-        echo "GITHUB_REPO=${{ secrets.REPO_NAME }}" >> $GITHUB_ENV
+        echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+        echo "GITHUB_OWNER=${{ secrets.GITHUB_OWNER }}" >> $GITHUB_ENV
+        echo "GITHUB_REPO=${{ secrets.GITHUB_REPO }}" >> $GITHUB_ENV
 
     - name: Fetch PR Files
       run: npm run get-pr
@@ -45,30 +45,24 @@ jobs:
         const repo = process.env.GITHUB_REPO;
         const prNumber = process.env.GITHUB_REF.split("/")[2];
 
-        const data = JSON.parse(fs.readFileSync(path.join(process.cwd(), "data/pr-ai-suggestions.json")));
+        const data = JSON.parse(fs.readFileSync(path.join(process.cwd(), "data", "pr-ai-suggestions.json")));
 
-        const pr = data[0];
-        const s = pr.suggestions;
+        const octokit = new Octokit({ auth: token });
 
-        let body = `
-        ### 🤖 AI TestGen Suggestions
+        let body = "### 🤖 AI TestGen Suggestions\n\n";
 
-        #### 🔥 Smoke Tests
-        ${s.smoke.map(t => `- ${t}`).join("\n")}
+        data.forEach(item => {
+          body += `#### PR #${item.pr_number}: ${item.title}\n`;
+          body += "**Generated Test Cases:**\n";
+          body += "```\n";
+          body += JSON.stringify(item.suggestions, null, 2);
+          body += "\n```\n\n";
+        });
 
-        #### ❌ Negative Tests
-        ${s.negative.map(t => `- ${t}`).join("\n")}
-
-        #### ⚠️ Edge Case Tests
-        ${s.edge.map(t => `- ${t}`).join("\n")}
-                `;
-
-            const octokit = new Octokit({ auth: token });
-
-            octokit.issues.createComment({
-            owner,
-            repo,
-            issue_number: prNumber,
-            body
-            });
-            EOF
+        octokit.issues.createComment({
+          owner,
+          repo,
+          issue_number: prNumber,
+          body
+        });
+        EOF

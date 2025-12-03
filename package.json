@@ -3,21 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run",
-    "testgen:get-pr": "node scripts/get-pr-files.mjs",
-    "testgen:analyze": "node scripts/analyze-pr.mjs",
-    "testgen:pr-bot": "node scripts/pr-testgen.mjs"
+    "get-pr": "node scripts/get-pr-files.mjs",
+    "analyze-pr": "node scripts/analyze-pr.mjs"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.1",
     "cypress": "^15.7.0",
     "dotenv": "^17.2.3",
     "openai": "^6.9.1"
-  },
-  "scripts": {
-  "get-pr": "node scripts/get-pr-files.mjs",
-  "analyze-pr": "node scripts/analyze-pr.mjs"
-}
-
+  }
 }
