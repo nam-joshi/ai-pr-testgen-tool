@@ -16,8 +16,9 @@
     "openai": "^6.9.1"
   },
   "scripts": {
+  "analyze-pr": "node scripts/analyze-pr.mjs",
   "get-pr": "node scripts/get-pr-files.mjs",
-  "analyze-pr": "node scripts/analyze-pr.mjs"
+  "post-comment": "node scripts/post-comment.js"
 }
 
 }

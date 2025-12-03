@@ -1,5 +1,5 @@
 describe('CSUF Homepage Smoke Test', () => {
-    it('Visits CSUF homepage', () => {
+    it('Visit CSUF homepage', () => {
       cy.visit('https://www.fullerton.edu/');
     });
 
@@ -7,4 +7,5 @@ describe('CSUF Homepage Smoke Test', () => {
         cy.visit("https://www.fullerton.edu");
         cy.get("input[type='search'], #search, .search").should("exist");
       });
+
 });
